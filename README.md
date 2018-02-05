@@ -4,13 +4,13 @@
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
+[Available in Hex](https://hex.pm/packages/guardian_backdoor), the package can be installed
 by adding `guardian_backdoor` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:guardian_backdoor, "~> 0.1.0", only: :test}
+    {:guardian_backdoor, "~> 1.0.0", only: :test}
   ]
 end
 ```
