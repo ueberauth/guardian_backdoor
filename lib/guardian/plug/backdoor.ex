@@ -20,18 +20,29 @@ defmodule Guardian.Plug.Backdoor do
 
   ## Usage
 
-  Now that `Guardian.Plug.Backdoor` is installed, it's time to sign in.
+  Now that `Guardian.Plug.Backdoor` is installed, it's time to sign in. Pass
+  your claims as `claims` in the query string of your route.
+
+  ```
+  conn = get(conn, "/", claims: %{sub: "User:1"})
+
+  resource = MyApp.Guardian.Plug.current_resource(conn)
+  %{"sub" => "User:1"} = MyApp.Guardian.Plug.current_claims(conn)
+  ```
+
+  When the `Guardian.Plug.Backdoor` plug runs, it fetches the resource from your
+  Guardian implementation with those claims and signs in.
+
+  Alternatively, encode your claims into a token and pass that as `token` in the
+  query string instead.
 
   ```
   {:ok, token, _claims} = MyApp.Guardian.encode_and_sign(resource)
 
-  conn = get(conn, "/?token=\#{token}")
+  conn = get(conn, "/", token: token)
 
   resource = MyApp.Guardian.Plug.current_resource(conn)
   ```
-
-  When the `Guardian.Plug.Backdoor` plug runs, it looks up the resource from the
-  `token` passed in and signs in.
 
   ## Options
 
@@ -48,21 +59,31 @@ defmodule Guardian.Plug.Backdoor do
 
   @doc false
   def call(conn, %{module: module}) do
-    with {:ok, token} <- get_token(conn),
-         {:ok, resource, _} <- module.resource_from_token(token) do
-      sign_in(conn, module, resource)
-    else
-      _ -> conn
+    conn = fetch_query_params(conn)
+
+    case resource_from_params(module, conn.params) do
+      {:ok, resource, claims} ->
+        module = Module.concat(module, Plug)
+        module.sign_in(conn, resource, claims)
+
+      _ ->
+        conn
     end
   end
 
-  defp get_token(conn) do
-    conn = fetch_query_params(conn)
-    Map.fetch(conn.params, "token")
+  defp resource_from_params(module, %{"token" => token}) do
+    case module.resource_from_token(token) do
+      {:ok, resource, claims} -> {:ok, resource, claims}
+      error -> error
+    end
   end
 
-  defp sign_in(conn, module, resource) do
-    app_plug = Module.concat(module, :Plug)
-    app_plug.sign_in(conn, resource)
+  defp resource_from_params(module, %{"claims" => claims}) do
+    case module.resource_from_claims(claims) do
+      {:ok, resource} -> {:ok, resource, claims}
+      error -> error
+    end
   end
+
+  defp resource_from_params(_module, _params), do: :no_resource_found
 end
