@@ -6,7 +6,7 @@ defmodule Guardian.Backdoor.Mixfile do
   @maintainers [
     "Daniel Neighman",
     "Sean Callan",
-    "Sonny Scroggin",
+    "Sonny Scroggin"
   ]
 
   def project do
@@ -30,8 +30,7 @@ defmodule Guardian.Backdoor.Mixfile do
     [
       {:guardian, "~> 1.0"},
       {:plug, "~> 1.3.3 or ~> 1.4"},
-
-      {:ex_doc, ">= 0.0.0", only: :dev},
+      {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
 
