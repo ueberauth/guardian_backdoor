@@ -30,7 +30,8 @@ defmodule Guardian.Backdoor.Mixfile do
     [
       {:guardian, "~> 1.0"},
       {:plug, "~> 1.3.3 or ~> 1.4"},
-      {:ex_doc, ">= 0.0.0", only: :dev}
+      {:ex_doc, ">= 0.0.0", only: :dev},
+      {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false}
     ]
   end
 
