@@ -1,7 +1,7 @@
 defmodule Guardian.Backdoor.Mixfile do
   use Mix.Project
 
-  @version "1.0.0"
+  @version "1.1.0"
   @url "https://github.com/ueberauth/guardian_backdoor"
   @maintainers [
     "Daniel Neighman",
